@@ -1,83 +1,85 @@
-// server/server.js
+// server.js
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const mongoose = require("mongoose");
+
+// Load environment variables
+dotenv.config();
 
 // Import Routes
 const checklistRoutes = require("./routes/checklistRoutes");
 const employeeRoutes = require("./routes/employeeRoutes");
 const vehicleRoutes = require("./routes/vehicleRoutes");
 
-// Load environment variables
-dotenv.config();
-
 const app = express();
 
-// Middleware
+// ─── CORS ────────────────────────────────────────────────────────────────────
+const allowedOrigins = process.env.ALLOWED_ORIGINS ? process.env.ALLOWED_ORIGINS.split(",") : ["*"];
+
 app.use(
   cors({
-    origin: "*",
-    methods: ["GET", "POST", "PUT", "DELETE"],
+    origin: allowedOrigins.includes("*") ? "*" : allowedOrigins,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   }),
 );
+
 app.use(express.json());
 
-// FUNGSI KONEKSI DATABASE DENGAN PENANGANAN ERROR KETAT
-const connectDBServerless = async () => {
-  // Gunakan koneksi yang sudah ada jika tersedia (Ready State: 1 = Connected, 2 = Connecting)
-  if (mongoose.connection.readyState >= 1) {
-    return;
+// ─── DATABASE CONNECTION (Singleton untuk Serverless) ─────────────────────────
+let isConnected = false;
+
+const connectDB = async () => {
+  if (isConnected) return;
+
+  const uri = process.env.MONGO_URI || process.env.MONGODB_URI;
+  if (!uri) {
+    throw new Error("MONGO_URI tidak ditemukan di Environment Variables!");
   }
 
-  // Validasi string koneksi sebelum mencoba menyambung
-  if (!process.env.MONGO_URI && !process.env.MONGODB_URI) {
-    console.error("ERROR: Kunci MONGO_URI tidak ditemukan di Environment Variables Vercel!");
-    return;
-  }
+  await mongoose.connect(uri, {
+    serverSelectionTimeoutMS: 5000,
+    bufferCommands: false,
+  });
 
-  try {
-    await mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI, {
-      serverSelectionTimeoutMS: 5000, // Timeout dalam 5 detik jika Atlas tidak merespon
-    });
-    console.log("MongoDB Atlas Berhasil Terhubung");
-  } catch (error) {
-    console.error("Gagal koneksi MongoDB Atlas:", error.message);
-  }
+  isConnected = true;
+  console.log("MongoDB Atlas Berhasil Terhubung");
 };
 
-// Middleware Fail-Safe: Coba sambungkan DB, jika gagal/timeout tetap lanjutkan agar tidak crash 500
+// Middleware: sambungkan DB sebelum setiap request
 app.use(async (req, res, next) => {
   try {
-    await connectDBServerless();
+    await connectDB();
   } catch (err) {
-    console.error("Database middleware error caught:", err.message);
+    console.error("Koneksi DB gagal:", err.message);
+    return res.status(503).json({
+      success: false,
+      message: "Database tidak tersedia, coba lagi nanti.",
+      error: err.message,
+    });
   }
   next();
 });
 
-// API Routes Mapping
+// ─── ROUTES ──────────────────────────────────────────────────────────────────
 app.use("/api/checklists", checklistRoutes);
 app.use("/api/employees", employeeRoutes);
 app.use("/api/vehicles", vehicleRoutes);
 
-// Test Route dasar (Bisa diakses tanpa database untuk pembuktian server hidup)
+// Health-check root
 app.get("/", (req, res) => {
   res.status(200).json({
     status: "Active",
-    message: "Vehicle Checklist API PT Truba Jaga Cita is running on Vercel Serverless",
-    databaseStatus: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected/Connecting",
+    message: "Vehicle Checklist API PT Truba Jaga Cita is running on Vercel",
+    databaseStatus: mongoose.connection.readyState === 1 ? "Connected" : "Disconnected",
   });
 });
 
-// HANYA JALANKAN APP.LISTEN JIKA BERJALAN DI LOKAL
+// ─── LOCAL DEV ────────────────────────────────────────────────────────────────
 if (process.env.NODE_ENV !== "production") {
   const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => {
-    console.log(`Server running locally on port ${PORT}`);
-  });
+  app.listen(PORT, () => console.log(`Server berjalan lokal di http://localhost:${PORT}`));
 }
 
-// Ekspor objek app untuk serverless function Vercel
 module.exports = app;
