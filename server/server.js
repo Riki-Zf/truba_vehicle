@@ -2,7 +2,7 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const connectDB = require("./config/db"); // Mengembalikan fungsi database asli kamu
+const mongoose = require("mongoose"); // Langsung pakai mongoose bawaan
 
 // Import Routes
 const checklistRoutes = require("./routes/checklistRoutes");
@@ -24,14 +24,23 @@ app.use(
 );
 app.use(express.json());
 
-// Middleware untuk memastikan database terhubung setiap ada request serverless masuk
-app.use(async (req, res, next) => {
+// FUNGSIONAL KONEKSI DATABASE LANGSUNG (Sangat aman untuk Serverless Vercel)
+const connectDBServerless = async () => {
+  // Jika database sudah terhubung, gunakan koneksi yang ada (mencegah penumpukan pool koneksi)
+  if (mongoose.connection.readyState >= 1) return;
+
   try {
-    await connectDB(); // Memanggil fungsi koneksi DB bawaan kamu secara aman
-    next();
+    await mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI);
+    console.log("MongoDB Atlas Berhasil Terhubung (Direct Serverless Mode)");
   } catch (error) {
-    res.status(500).json({ success: false, message: "Database connection failed" });
+    console.error("Gagal koneksi MongoDB Atlas:", error.message);
   }
+};
+
+// Middleware untuk memastikan database selalu siap setiap ada request API masuk
+app.use(async (req, res, next) => {
+  await connectDBServerless();
+  next();
 });
 
 // API Routes Mapping
