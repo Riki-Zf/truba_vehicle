@@ -5,7 +5,7 @@ const dotenv = require("dotenv");
 const mongoose = require("mongoose");
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ path: require("path").join(__dirname, ".env") });
 
 // Import Routes
 const checklistRoutes = require("./routes/checklistRoutes");
