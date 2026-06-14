@@ -1,5 +1,5 @@
 // server/controllers/checklistController.js
-const Checklist = require('../models/Checklist');
+const Checklist = require("../models/CheckList");
 
 // @desc    Membuat checklist baru (Submit dari Form)
 // @route   POST /api/checklists
@@ -9,14 +9,14 @@ const createChecklist = async (req, res) => {
     const savedChecklist = await newChecklist.save();
     res.status(201).json({
       success: true,
-      message: 'Checklist kendaraan berhasil disimpan!',
-      data: savedChecklist
+      message: "Checklist kendaraan berhasil disimpan!",
+      data: savedChecklist,
     });
   } catch (error) {
     res.status(400).json({
       success: false,
-      message: 'Gagal menyimpan checklist',
-      error: error.message
+      message: "Gagal menyimpan checklist",
+      error: error.message,
     });
   }
 };
@@ -29,18 +29,18 @@ const getAllChecklists = async (req, res) => {
     res.status(200).json({
       success: true,
       count: checklists.length,
-      data: checklists
+      data: checklists,
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: 'Gagal mengambil data checklist',
-      error: error.message
+      message: "Gagal mengambil data checklist",
+      error: error.message,
     });
   }
 };
 
 module.exports = {
   createChecklist,
-  getAllChecklists
+  getAllChecklists,
 };
