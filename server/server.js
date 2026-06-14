@@ -2,7 +2,7 @@
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
-const mongoose = require("mongoose"); // Menggunakan mongoose langsung untuk pengecekan status koneksi
+const connectDB = require("./config/db"); // Mengembalikan fungsi database asli kamu
 
 // Import Routes
 const checklistRoutes = require("./routes/checklistRoutes");
@@ -17,30 +17,21 @@ const app = express();
 // Middleware
 app.use(
   cors({
-    origin: "*", // Mengizinkan semua origin, atau bisa kamu ganti dengan URL domain frontend Vercel-mu nanti
+    origin: "*",
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   }),
 );
-app.use(express.json()); // Agar bisa membaca body request berformat JSON
+app.use(express.json());
 
-// KONEKSI DATABASE OPTIMAL UNTUK SERVERLESS VERCEL
-const connectDBServerless = async () => {
-  // Jika sudah terhubung, gunakan koneksi yang ada (mencegah penumpukan koneksi baru di Vercel)
-  if (mongoose.connection.readyState >= 1) return;
-
-  try {
-    await mongoose.connect(process.env.MONGO_URI || process.env.MONGODB_URI);
-    console.log("MongoDB Atlas Berhasil Terhubung (Serverless Mode)");
-  } catch (error) {
-    console.error("Gagal koneksi MongoDB Atlas:", error.message);
-  }
-};
-
-// Middleware untuk memastikan database terhubung setiap ada request masuk
+// Middleware untuk memastikan database terhubung setiap ada request serverless masuk
 app.use(async (req, res, next) => {
-  await connectDBServerless();
-  next();
+  try {
+    await connectDB(); // Memanggil fungsi koneksi DB bawaan kamu secara aman
+    next();
+  } catch (error) {
+    res.status(500).json({ success: false, message: "Database connection failed" });
+  }
 });
 
 // API Routes Mapping
