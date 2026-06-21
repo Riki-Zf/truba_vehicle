@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
+import { API_URL } from "../config/api";
 
 export default function ReportPage() {
   // Master data 49 armada PT Truba Jaga Cita
@@ -35,7 +36,7 @@ export default function ReportPage() {
   const fetchReportData = async () => {
     setLoading(true);
     try {
-      const response = await fetch(`http://localhost:5000/api/checklists`);
+      const response = await fetch(`${API_URL}/api/checklists`);
       const result = await response.json();
       if (response.ok) {
         setDbChecklists(result.data);

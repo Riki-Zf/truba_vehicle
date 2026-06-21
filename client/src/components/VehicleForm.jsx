@@ -1,6 +1,7 @@
 // client/src/components/VehicleForm.jsx
 import { useState, useEffect } from "react";
 import ChecklistItem from "./ChecklistItem";
+import { API_URL } from "../config/api";
 
 export default function VehicleForm() {
   const checklistParts = ["Kaca Spion", "Klakson", "Safety Belt", "AC", "Wiper", "Lampu Depan", "Lampu Rem", "Lampu Sein", "Kopling", "Rem Tangan", "Bendera"];
@@ -131,7 +132,7 @@ export default function VehicleForm() {
   useEffect(() => {
     const loadEmployees = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/employees");
+        const response = await fetch(`${API_URL}/api/employees`);
         const result = await response.json();
         if (response.ok) {
           setDbEmployees(result.data);
@@ -183,7 +184,7 @@ export default function VehicleForm() {
     const payload = { ...formData, kondisiKendaraan: finalKondisi, catatanTambahan };
 
     try {
-      const response = await fetch("http://localhost:5000/api/checklists", {
+      const response = await fetch(`${API_URL}/api/checklists`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),

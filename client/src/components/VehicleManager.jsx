@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { API_URL as API_BASE_URL } from "../config/api";
 
 const VehicleManager = () => {
   // State untuk menyimpan list kendaraan dari backend
@@ -20,8 +21,8 @@ const VehicleManager = () => {
   // State untuk handle error & success message
   const [message, setMessage] = useState({ type: "", text: "" });
 
-  // Base URL API (sesuaikan dengan port backend server.js Anda)
-  const API_URL = "http://localhost:5000/api/vehicles";
+  // Base URL API (diambil dari config terpusat client/src/config/api.js)
+  const API_URL = `${API_BASE_URL}/api/vehicles`;
 
   // 1. GET ALL VEHICLES (Ambil data saat komponen pertama kali dimuat)
   const fetchVehicles = async () => {

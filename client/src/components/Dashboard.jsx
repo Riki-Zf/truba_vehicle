@@ -1,5 +1,6 @@
 // client/src/components/Dashboard.jsx
 import { useEffect, useState } from "react";
+import { API_URL } from "../config/api";
 
 export default function Dashboard() {
   const [checklists, setChecklists] = useState([]);
@@ -14,7 +15,7 @@ export default function Dashboard() {
   const fetchChecklists = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/checklists");
+      const response = await fetch(`${API_URL}/api/checklists`);
       const result = await response.json();
       if (response.ok) {
         setChecklists(result.data);

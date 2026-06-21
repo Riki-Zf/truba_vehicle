@@ -1,5 +1,6 @@
 // client/src/components/EmployeePage.jsx
 import { useState, useEffect } from "react";
+import { API_URL } from "../config/api";
 
 export default function EmployeePage() {
   const [employees, setEmployees] = useState([]);
@@ -21,7 +22,7 @@ export default function EmployeePage() {
   const fetchEmployees = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:5000/api/employees");
+      const response = await fetch(`${API_URL}/api/employees`);
       const result = await response.json();
       if (response.ok) {
         setEmployees(result.data);
@@ -56,7 +57,7 @@ export default function EmployeePage() {
     try {
       if (editingId) {
         // PROSES UPDATE (PUT)
-        const response = await fetch(`http://localhost:5000/api/employees/${editingId}`, {
+        const response = await fetch(`${API_URL}/api/employees/${editingId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -71,7 +72,7 @@ export default function EmployeePage() {
         }
       } else {
         // PROSES TAMBAH BARU (POST)
-        const response = await fetch("http://localhost:5000/api/employees", {
+        const response = await fetch(`${API_URL}/api/employees`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload),
@@ -109,7 +110,7 @@ export default function EmployeePage() {
   const handleDeleteEmployee = async (id, name) => {
     if (window.confirm(`Hapus karyawan "${name}" dari database permanen?`)) {
       try {
-        const response = await fetch(`http://localhost:5000/api/employees/${id}`, {
+        const response = await fetch(`${API_URL}/api/employees/${id}`, {
           method: "DELETE",
         });
         const result = await response.json();
