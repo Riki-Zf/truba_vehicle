@@ -2,7 +2,7 @@
 import { useState, useEffect } from "react";
 import ChecklistItem from "./ChecklistItem";
 import { API_URL } from "../config/api";
-
+import logoTjc from "../assets/trb.png";
 export default function VehicleForm() {
   const checklistParts = ["Kaca Spion", "Klakson", "Safety Belt", "AC", "Wiper", "Lampu Depan", "Lampu Rem", "Lampu Sein", "Kopling", "Rem Tangan", "Bendera"];
 
@@ -225,11 +225,13 @@ export default function VehicleForm() {
     <div className="relative">
       <form onSubmit={handleSubmit} className="max-w-4xl mx-auto my-8 bg-white rounded-2xl shadow-xl border border-gray-100 overflow-hidden">
         {/* HEADER */}
-        <div className="bg-gradient-to-r from-red-700 via-red-600 to-red-700 p-6 text-white flex items-center gap-4 border-b-4 border-amber-500">
-          <div className="w-12 h-12 bg-white/10 backdrop-blur-sm rounded-xl flex items-center justify-center font-black text-xl border border-white/20 shadow-inner text-amber-400">TJC</div>
+        <div className="bg-slate-900 px-6 py-5 text-white flex items-center gap-4 border-b-2 border-red-600 shadow-sm">
+          <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-2 shadow-md border border-slate-800">
+            <img src={logoTjc} alt="TJC Logo" className="w-full h-full object-contain" />
+          </div>
           <div>
-            <p className="text-xs uppercase tracking-widest text-amber-300 font-bold">Aplikasi Internal</p>
-            <h2 className="text-xl font-black tracking-tight text-white">PT TRUBA JAGA CITA</h2>
+            <p className="text-[10px] uppercase tracking-widest text-amber-400 font-bold bg-red-500/10 px-2 py-0.5 rounded-md inline-block mb-1">Aplikasi Internal</p>
+            <h2 className="text-lg font-bold tracking-wide text-slate-100 leading-none">PT TRUBA JAGA CITA</h2>
           </div>
         </div>
 
