@@ -4,7 +4,7 @@ import ChecklistItem from "./ChecklistItem";
 import { API_URL } from "../config/api";
 import logoTjc from "../assets/trb.png";
 export default function VehicleForm() {
-  const checklistParts = ["Kaca Spion", "Klakson", "Safety Belt", "AC", "Wiper", "Lampu Depan", "Lampu Rem", "Lampu Sein", "Kopling", "Rem Tangan", "Bendera", "Kaca","Body"];
+  const checklistParts = ["Kaca Spion", "Klakson", "Safety Belt", "AC", "Wiper", "Lampu Depan", "Lampu Rem", "Lampu Sein", "Kopling", "Rem Tangan", "Bendera", "Kaca", "Body"];
 
   const jenisKendaraanOptions = ["BUS", "TRUCK", "ELF", "LV"];
 
@@ -244,7 +244,7 @@ export default function VehicleForm() {
           {/* GRID INFO UTAMA */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
             <div className="flex flex-col gap-1">
-              <label className="text-xs font-bold text-gray-600 uppercase tracking-wider pl-1">Tanggal (Terkunci)</label>
+              <label className="text-xs font-bold text-gray-600 uppercase tracking-wider pl-1">Tanggal</label>
               <input name="date" value={formData.date} type="date" readOnly className="border border-gray-200 p-3 rounded-xl bg-gray-100 text-gray-500 font-semibold outline-none cursor-not-allowed text-sm" />
             </div>
 
