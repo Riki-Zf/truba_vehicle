@@ -20,6 +20,9 @@ const VehicleManager = ({ role }) => {
 
   const API_URL = `${API_BASE_URL}/api/vehicles`;
 
+  // Opsi dropdown Rute Tujuan
+  const RUTE_OPTIONS = ["Malili", "Wawondula", "Sorowako", "Wasuponda", "Operasional"];
+
   const fetchVehicles = async () => {
     setLoading(true);
     try {
@@ -121,7 +124,11 @@ const VehicleManager = ({ role }) => {
   };
 
   const filteredVehicles = vehicles.filter(
-    (v) => v.nomorPolisi.toLowerCase().includes(searchQuery.toLowerCase()) || v.nomorCT.toLowerCase().includes(searchQuery.toLowerCase()) || v.jenisUnit.toLowerCase().includes(searchQuery.toLowerCase()),
+    (v) =>
+      v.nomorPolisi.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      v.nomorCT.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      v.jenisUnit.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      v.ruteTujuan.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   const stats = vehicles.reduce(
@@ -193,17 +200,25 @@ const VehicleManager = ({ role }) => {
               </select>
             </div>
 
+            {/* DROPDOWN UNTUK RUTE TUJUAN */}
             <div className="flex flex-col gap-1">
               <label className="text-xs font-bold text-gray-600 uppercase tracking-wider pl-1">Rute Tujuan</label>
-              <input
-                type="text"
+              <select
                 name="ruteTujuan"
-                placeholder="Contoh: JAKARTA - SURABAYA"
                 value={formData.ruteTujuan}
                 onChange={handleInputChange}
                 required
                 className="border border-gray-200 p-3 rounded-xl bg-gray-50/50 focus:bg-white focus:border-red-500 focus:ring-1 focus:ring-red-500 outline-none transition-all text-sm font-semibold uppercase"
-              />
+              >
+                <option value="" disabled>
+                  -- Pilih Rute Tujuan --
+                </option>
+                {RUTE_OPTIONS.map((rute) => (
+                  <option key={rute} value={rute}>
+                    {rute}
+                  </option>
+                ))}
+              </select>
             </div>
 
             <div className="flex gap-2 pt-2">
