@@ -1,42 +1,51 @@
-// client/src/App.jsx
 import { useState } from "react";
 import VehicleForm from "./components/VehicleForm";
 import Dashboard from "./components/Dashboard";
 import ReportPage from "./components/ReportPage";
-import EmployeePage from "./components/EmployeePage"; // 1. IMPORT HALAMAN KARYAWAN BARU
-import VehicleManager from "./components/VehicleManager"; // 🔥 PERUBAHAN: Import halaman kendaraan baru
+import EmployeePage from "./components/EmployeePage";
+import VehicleManager from "./components/VehicleManager";
 
 export default function App() {
   const [role, setRole] = useState("driver"); 
+  const [pendingRole, setPendingRole] = useState(null); // Menyimpan role yang sedang divertifikasi
   const [activeTab, setActiveTab] = useState("form");
   const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  const ADMIN_PASSWORD = "admin123"; 
+  // Set password terpisah untuk Admin dan Super Admin
+  const PASSWORDS = {
+    admin: "admin123",
+    superadmin: "superadmin123",
+  };
 
   const handleRoleChange = (e) => {
     const selectedRole = e.target.value;
-    if (selectedRole === "admin") {
+    if (selectedRole === "admin" || selectedRole === "superadmin") {
+      setPendingRole(selectedRole);
       setIsPasswordModalOpen(true);
       setPasswordInput("");
       setErrorMsg("");
     } else {
       setRole("driver");
+      setPendingRole(null);
       setActiveTab("form");
     }
   };
 
   const handlePasswordSubmit = (e) => {
     e.preventDefault();
-    if (passwordInput === ADMIN_PASSWORD) {
-      setRole("admin");
+    if (passwordInput === PASSWORDS[pendingRole]) {
+      setRole(pendingRole);
       setActiveTab("dashboard"); 
       setIsPasswordModalOpen(false);
     } else {
       setErrorMsg("❌ Password salah!");
     }
   };
+
+  // Helper untuk mengecek apakah user memiliki akses area manajemen/admin
+  const isManagement = role === "admin" || role === "superadmin";
 
   return (
     <div className="min-h-screen bg-gray-50/50 pb-12">
@@ -49,7 +58,7 @@ export default function App() {
               📝 Form Checklist
             </button>
 
-            {role === "admin" && (
+            {isManagement && (
               <>
                 <button onClick={() => setActiveTab("dashboard")} className={`py-4 px-1 font-bold text-sm border-b-2 ${activeTab === "dashboard" ? "border-red-600 text-red-600" : "border-transparent text-gray-500"}`}>
                   📊 Dashboard Monitoring
@@ -57,11 +66,9 @@ export default function App() {
                 <button onClick={() => setActiveTab("report")} className={`py-4 px-1 font-bold text-sm border-b-2 ${activeTab === "report" ? "border-red-600 text-red-600" : "border-transparent text-gray-500"}`}>
                   📈 Daily Report
                 </button>
-                {/* 2. TOMBOL MENU BARU KHUSUS UNTUK DATA KARYAWAN */}
                 <button onClick={() => setActiveTab("employees")} className={`py-4 px-1 font-bold text-sm border-b-2 ${activeTab === "employees" ? "border-red-600 text-red-600" : "border-transparent text-gray-500"}`}>
                   👥 Data Karyawan
                 </button>
-                {/* 🔥 PERUBAHAN: Tambah tombol menu Data Kendaraan khusus Admin */}
                 <button onClick={() => setActiveTab("vehicles")} className={`py-4 px-1 font-bold text-sm border-b-2 ${activeTab === "vehicles" ? "border-red-600 text-red-600" : "border-transparent text-gray-500"}`}>
                   🚚 Data Kendaraan
                 </button>
@@ -72,7 +79,8 @@ export default function App() {
           <div className="flex items-center gap-2 py-2 sm:py-0 self-end sm:self-auto">
             <select value={role} onChange={handleRoleChange} className="text-xs font-bold px-3 py-1.5 rounded-lg border bg-gray-50 outline-none cursor-pointer">
               <option value="driver">👤 Driver (Form Saja)</option>
-              <option value="admin">🔒 Admin (Butuh Password)</option>
+              <option value="admin">👀 Admin (Read Only)</option>
+              <option value="superadmin">⚡ Super Admin (Akses Penuh)</option>
             </select>
           </div>
         </div>
@@ -83,20 +91,31 @@ export default function App() {
         {activeTab === "form" && <VehicleForm />}
         {activeTab === "dashboard" && <Dashboard />}
         {activeTab === "report" && <ReportPage />}
-        {activeTab === "employees" && <EmployeePage />} {/* 3. RENDERING KONTEN KARYAWAN */}
-        {activeTab === "vehicles" && <VehicleManager />} {/* 🔥 PERUBAHAN: Rendering halaman kendaraan */}
+        {activeTab === "employees" && <EmployeePage role={role} />}
+        {/* Pass prop role ke VehicleManager */}
+        {activeTab === "vehicles" && <VehicleManager role={role} />}
       </div>
 
-      {/* MODAL PASSWORD ADMIN */}
+      {/* MODAL PASSWORD VERIFIKASI */}
       {isPasswordModalOpen && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4 z-50">
           <div className="bg-white rounded-2xl shadow-2xl max-w-sm w-full p-6 border-t-4 border-red-600">
-            <h3 className="text-lg font-bold text-center text-gray-900 mb-4">Verifikasi Akses Admin</h3>
+            <h3 className="text-lg font-bold text-center text-gray-900 mb-1">
+              Verifikasi {pendingRole === "superadmin" ? "Super Admin" : "Admin"}
+            </h3>
+            <p className="text-xs text-gray-400 text-center mb-4">Masukkan kata sandi untuk melanjutkan</p>
             <form onSubmit={handlePasswordSubmit} className="space-y-4">
-              <input type="password" placeholder="Password..." value={passwordInput} onChange={(e) => setPasswordInput(e.target.value)} className="w-full border p-3 rounded-xl text-center font-bold tracking-widest outline-none focus:border-red-500" />
+              <input 
+                type="password" 
+                placeholder="Password..." 
+                value={passwordInput} 
+                onChange={(e) => setPasswordInput(e.target.value)} 
+                className="w-full border p-3 rounded-xl text-center font-bold tracking-widest outline-none focus:border-red-500" 
+                autoFocus
+              />
               {errorMsg && <p className="text-xs text-red-600 font-semibold text-center">{errorMsg}</p>}
               <div className="flex gap-2">
-                <button type="button" onClick={() => { setIsPasswordModalOpen(false); setRole("driver"); }} className="w-1/2 bg-gray-100 text-gray-600 font-bold py-2 rounded-xl text-xs">Batal</button>
+                <button type="button" onClick={() => { setIsPasswordModalOpen(false); setPendingRole(null); }} className="w-1/2 bg-gray-100 text-gray-600 font-bold py-2 rounded-xl text-xs">Batal</button>
                 <button type="submit" className="w-1/2 bg-red-600 text-white font-bold py-2 rounded-xl text-xs">Konfirmasi</button>
               </div>
             </form>

@@ -4,7 +4,7 @@ import ChecklistItem from "./ChecklistItem";
 import { API_URL } from "../config/api";
 import logoTjc from "../assets/trb.png";
 export default function VehicleForm() {
-  const checklistParts = ["Kaca Spion", "Klakson", "Safety Belt", "AC", "Wiper", "Lampu Depan", "Lampu Rem", "Lampu Sein", "Kopling", "Rem Tangan", "Bendera"];
+  const checklistParts = ["Kaca Spion", "Klakson", "Safety Belt", "AC", "Wiper", "Lampu Depan", "Lampu Rem", "Lampu Sein", "Kopling", "Rem Tangan", "Bendera", "Kaca","Body"];
 
   const jenisKendaraanOptions = ["BUS", "TRUCK", "ELF", "LV"];
 
